@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Pin Converter</title>
+  <style>
+        * {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+        }
+
+        a {
+            color: lightblue;
+        }
+        body {
+            margin: auto;
+            max-width: max(60%, 50rem);
+            padding: 1rem;
+        }
+
+        code {
+            font-family: monospace;
+            background-color: #3c3c3c;
+        }
+
+        .code-block {
+            background-color: #3c3c3c;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 48px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        input[type=text] {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #3c3c3c;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+</style>
+</head>
+
+<body>
+    <h1>Pin Converter</h1>
+    <p> This takes in a MAC adress of a Wiimote and returns the bluetooth pin number of the Wiimote. </p>
+    <input type="text" id="mac" placeholder="MAC Address" ></input>
+    <button onclick="convert()">Convert</button>
+    <br><br>
+    <h3>Result: </h3>
+    <div class="code-block">
+    <code id="result" placeholder="Result"></code><br>
+    </div>
+    <button onclick="copyToClipboard()">Copy to clipboard </button>
+    <h2>Note</h2>
+    <p> This converter implements the steps described on <a href="https://wiibrew.org/wiki/Wiimote#Bluetooth_Pairing">wiibrew</a> to get the bluetooth pin of a wiimote from its MAC address. </p>
+    <p> The resulting pin <i>might</i> contain non-printable characters. And when you try to enter those characters in the pin field, it <i>might</i> not allow you to enter them. 
+    In that case, you might need to use other methods to connect the wiimote to your computer. like a Mayflash's DoplhinBar, or Bluetooth-passthrough. </p>
+    <p> Generally speaking, <a href="https://dolphin-emu.org/blog/2016/10/24/bluetooth-passthrough/">Bluetooth-passthrough </a> is a way better way to connect a wiimote to a computer for use with Dolphin.
+    so if you just want to use wiimotes with Dolphin, I highly recommend following this guide: <a href="https://wiki.dolphin-emu.org/index.php?title=Bluetooth_Passthrough">guide</a> regardless of whether you have problems with non-printable characters or not.
+    </p>
+    <script>
+        function convert() {
+            let mac = document.getElementById("mac").value;
+            let log = document.getElementById("log");
+            let converted = mac.trim().split(':').map(x => String.fromCharCode(parseInt(x, 16))).reverse().join('');
+            console.log(converted);
+            document.getElementById("result").innerHTML = escape_unprintable(converted);
+            return converted;
+        }
+
+        function copyToClipboard() {
+            const el = document.createElement("textarea");
+            let value = convert();
+            el.value = value;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand("copy");
+            document.body.removeChild(el);
+            alert("Copied \"" + value + "\" to clipboard!");
+        }
+
+        function escape_unprintable(str) {
+            return str.replace(/[\u0000-\u001F\u007F-\u009F]/g, function (c) {
+                return "\\u" + ("000" + c.charCodeAt(0).toString(16)).slice(-4);
+            });
+        }
+    </script>
+</body>
+</html>
